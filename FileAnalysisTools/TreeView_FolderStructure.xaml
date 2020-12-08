@@ -1,0 +1,29 @@
+﻿<Window x:Class="FileAnalysisTools.TreeView_FolderStructure"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FileAnalysisTools"
+        mc:Ignorable="d"
+        Title="TreeView_FolderStructure" Height="665.45" Width="1119.164" >
+    <Grid x:Name="frmTreeView" Margin="0,0,-304.4,-299">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="7*"/>
+            <ColumnDefinition Width="787*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Margin="11.8,16,-302.4,-210" Grid.Column="1" HorizontalAlignment="Left" Width="1077" Height="614" VerticalAlignment="Top">
+            <TreeView x:Name="treeView" xmlns:local="clr-namespace:FileAnalysisTools"  HorizontalAlignment="Left" Margin="19,50,0,0" VerticalAlignment="Top" Width="1040" Height="545">
+                <TreeView.Resources>
+                    <HierarchicalDataTemplate DataType="{x:Type local:MyTreeViewItem}" ItemsSource="{Binding SubItems}">
+                        <TextBlock Text="{Binding FullPath}"/>
+                    </HierarchicalDataTemplate>
+                </TreeView.Resources>
+            </TreeView>
+        </StackPanel>
+        <!--<TreeView x:Name="treeView" HorizontalAlignment="Left" Height="360" Margin="19,50,0,0" VerticalAlignment="Top" Width="765"/>-->
+        <TextBox x:Name="txtReportFilepath" HorizontalAlignment="Left" Height="29" Margin="159.077,16,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="542" Grid.Column="1"/>
+        <Label Content="Enter Report File Path" HorizontalAlignment="Left" Height="29" Margin="12.077,16,0,0" VerticalAlignment="Top" Width="147" Grid.Column="1"/>
+        <Button Content="Ok" HorizontalAlignment="Left" Margin="712.077,16,0,0" VerticalAlignment="Top" Width="65" Height="29" Click="Button_Click" Grid.Column="1"/>
+
+    </Grid>
+</Window>

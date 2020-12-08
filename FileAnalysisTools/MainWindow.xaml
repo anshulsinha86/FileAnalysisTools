@@ -1,0 +1,83 @@
+﻿<Window x:Class="FileAnalysisTools.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FileAnalysisTools"
+        mc:Ignorable="d"
+        Title="File Analysis Tool" Height="450" Width="800">
+    <Grid x:Name="MainForm" RenderTransformOrigin="0.5,0.5" Margin="-4,-28,-28.4,-30" Height="478" VerticalAlignment="Top">
+        <Grid.Resources>
+            <CollectionViewSource x:Key="name" Source="{Binding name}">
+                <CollectionViewSource.GroupDescriptions>
+                    <PropertyGroupDescription PropertyName="name" />
+                </CollectionViewSource.GroupDescriptions>
+            </CollectionViewSource>
+        </Grid.Resources>
+        <!--<DataGrid AutoGenerateColumns="False" Name="grdMain" CanUserAddRows="False" ItemsSource="{Binding FileList}" HorizontalAlignment="Left" Height="250" Margin="10,118,0,0" VerticalAlignment="Top" Width="770" MouseDoubleClick="GrdMain_MouseDoubleClick" IsReadOnly="True" ColumnWidth="Auto" ClipboardCopyMode="IncludeHeader" MinColumnWidth="100" SelectionMode="Single" >
+            <DataGrid.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Path=name}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+                    <GroupStyle.ContainerStyle>
+                        <Style TargetType="{x:Type GroupItem}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type GroupItem}">
+                                        <Expander>
+                                            <Expander.Header>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding Path =Name}" />
+                                                    <TextBlock Text="{Binding Path=ItemCount, StringFormat=Count: {0}}" Margin="20,0,0,0"/>
+                                                </StackPanel>
+                                            </Expander.Header>
+                                            <ItemsPresenter />
+                                        </Expander>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </GroupStyle.ContainerStyle>
+                </GroupStyle>
+            </DataGrid.GroupStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="File Path"  Binding="{Binding fullPath}" Width="200"></DataGridTextColumn>
+                <DataGridTextColumn Header="Name" Binding="{Binding name}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Extension" Binding="{Binding extension}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Size"  Binding="{Binding size}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Date Created"  Binding="{Binding CreateDate}"></DataGridTextColumn>
+                -->
+        <!--<DataGridTextColumn Header="No. of File Changes"  Binding="{Binding count}" Width="150"></DataGridTextColumn>-->
+        <!--
+                <DataGridTextColumn Header="Last Accessed"  Binding="{Binding lastAccessTime}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Last Modification"  Binding="{Binding lastWriteTime}" Width="150"></DataGridTextColumn>
+                <DataGridTextColumn Header="Owner"  Binding="{Binding owner}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Potential Duplicates"  Binding="{Binding duplicates}"></DataGridTextColumn>
+                -->
+        <!--<DataGridTextColumn Header="Delta"  Binding="{Binding delta}"></DataGridTextColumn>-->
+        <!--<DataGridCheckBoxColumn Header="MoveToSharepoint" Binding="{Binding moveToSharepoint}" ClipboardContentBinding="{x:Null}" Width="150"/>-->
+        <!--
+            </DataGrid.Columns>
+        </DataGrid>-->
+        <Button x:Name="btnSearch" Content="Scan &amp; Report" HorizontalAlignment="Left" Margin="497,68,0,0" VerticalAlignment="Top" Width="155" Height="35" Click="BtnSearch_Click" FontSize="16" RenderTransformOrigin="-3.168,2.406"/>
+        <Button x:Name="btnCreateExcelReport" Content="Create Excel report" HorizontalAlignment="Left" Margin="497,125,0,0" VerticalAlignment="Top" Width="155" Height="35" FontSize="16" Click="BtnCreateExcelReport_Click"/>
+        <Button x:Name="btnMove" Content="Move Files" HorizontalAlignment="Left" Margin="497,179,0,0" VerticalAlignment="Top" Width="155" Height="35" FontSize="16" Click="BtnMove_Click"/>
+        <Label Content="Scans a network drive folder for file meta-data." HorizontalAlignment="Left" Margin="148,68,0,0" VerticalAlignment="Top" Height="35" Width="325"/>
+        <Label Content="Creates a formatted excel report " HorizontalAlignment="Left" Margin="148,125,0,0" VerticalAlignment="Top" Height="35" Width="325"/>
+        <Label Content="Moves files to pre-cleanse folder." HorizontalAlignment="Left" Margin="148,179,0,0" VerticalAlignment="Top" Height="35" Width="325"/>
+        <Button x:Name="btn_tempMoveFix" Content="Move fix Gov Relation" HorizontalAlignment="Left" Margin="497,306,0,0" VerticalAlignment="Top" Width="155" Height="36" Click="Btn_tempMoveFix_Click"/>
+        <Button x:Name="btn_CreateFolder" Content="CreateFolderforLegal(Delete)" HorizontalAlignment="Left" Margin="497,347,0,0" VerticalAlignment="Top" Width="155" Height="35" Click="Btn_CreateFolder_Click" RenderTransformOrigin="0.497,-0.617"/>
+        <Button x:Name="btnCount" Content="Count" HorizontalAlignment="Left" Margin="497,246,0,0" VerticalAlignment="Top" Width="155" Height="34" Click="BtnCount_Click"/>
+        <Button x:Name="btnCSVExport" Content="CSV" HorizontalAlignment="Left" Margin="497,401,0,0" VerticalAlignment="Top" Width="155" Height="26" Click="BtnCSVExport_Click"/>
+        <Button x:Name="btnTreeView" Content="Open Tree View" HorizontalAlignment="Left" Margin="317,246,0,0" VerticalAlignment="Top" Width="141" Height="33" Click="BtnTreeView_Click"/>
+        <!--<TextBox x:Name="txtSearch" HorizontalAlignment="Left" Height="35" Margin="218,63,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="173" FontSize="14"/>-->
+        <!--<Label x:Name="lblSearch" Content="Search Text" HorizontalAlignment="Left" Margin="73,63,0,0" VerticalAlignment="Top" Width="82" Height="35" RenderTransformOrigin="0.492,1.096"/>-->
+        <!--<Button x:Name="btnExport" Content="Export To CSV" HorizontalAlignment="Left" Margin="675,63,0,0" VerticalAlignment="Top" Width="105" Height="35" FontSize="16" Click="BtnExport_Click"/>-->
+
+    </Grid>
+</Window>

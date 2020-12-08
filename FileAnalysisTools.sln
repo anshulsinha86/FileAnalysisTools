@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileAnalysisTools", "FileAnalysisTools\FileAnalysisTools.csproj", "{5B4DBA1E-496D-47A3-99BA-2379509CB99E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B4FB076C-69E1-43B8-BA0C-22D90684FB70}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5B4DBA1E-496D-47A3-99BA-2379509CB99E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B4DBA1E-496D-47A3-99BA-2379509CB99E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B4DBA1E-496D-47A3-99BA-2379509CB99E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B4DBA1E-496D-47A3-99BA-2379509CB99E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {84FEF751-A6BE-49D7-A62C-997B67FB2AC8}
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		Policies = $0
+		$0.StandardHeader = $1
+		$0.VersionControlPolicy = $2
+	EndGlobalSection
+EndGlobal
