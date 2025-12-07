@@ -107,8 +107,8 @@ namespace FileAnalysisTools
             List<string> myExtraction = new List<string>();
             foreach (string line in temp)
             {
-                var delimitedLine = line.Split('|'); //set ur separator, in this case tab
-                string fullpathWithoutFileName = Delimon.Win32.IO.Path.GetDirectoryName(delimitedLine[5]);
+                var delimitedLine = line.Split('|'); // Set your separator, in this case '|'
+                string fullpathWithoutFileName = System.IO.Path.GetDirectoryName(delimitedLine[5]); // Use System.IO.Path instead of Delimon.Win32.IO.Path
                 myExtraction.Add(fullpathWithoutFileName);
             }
             return myExtraction;

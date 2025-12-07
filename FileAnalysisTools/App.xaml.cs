@@ -1,17 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace FileAnalysisTools
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            // Handle any unhandled exceptions
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+            {
+                var ex = args.ExceptionObject as Exception;
+                MessageBox.Show($"An unexpected error occurred:\n\n{ex?.Message}",
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            };
+        }
     }
 }

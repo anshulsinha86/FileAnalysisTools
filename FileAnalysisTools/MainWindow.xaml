@@ -1,83 +1,341 @@
 ﻿<Window x:Class="FileAnalysisTools.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:FileAnalysisTools"
-        mc:Ignorable="d"
-        Title="File Analysis Tool" Height="450" Width="800">
-    <Grid x:Name="MainForm" RenderTransformOrigin="0.5,0.5" Margin="-4,-28,-28.4,-30" Height="478" VerticalAlignment="Top">
-        <Grid.Resources>
-            <CollectionViewSource x:Key="name" Source="{Binding name}">
-                <CollectionViewSource.GroupDescriptions>
-                    <PropertyGroupDescription PropertyName="name" />
-                </CollectionViewSource.GroupDescriptions>
-            </CollectionViewSource>
-        </Grid.Resources>
-        <!--<DataGrid AutoGenerateColumns="False" Name="grdMain" CanUserAddRows="False" ItemsSource="{Binding FileList}" HorizontalAlignment="Left" Height="250" Margin="10,118,0,0" VerticalAlignment="Top" Width="770" MouseDoubleClick="GrdMain_MouseDoubleClick" IsReadOnly="True" ColumnWidth="Auto" ClipboardCopyMode="IncludeHeader" MinColumnWidth="100" SelectionMode="Single" >
-            <DataGrid.GroupStyle>
-                <GroupStyle>
-                    <GroupStyle.HeaderTemplate>
-                        <DataTemplate>
-                            <StackPanel>
-                                <TextBlock Text="{Binding Path=name}" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </GroupStyle.HeaderTemplate>
-                    <GroupStyle.ContainerStyle>
-                        <Style TargetType="{x:Type GroupItem}">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="{x:Type GroupItem}">
-                                        <Expander>
-                                            <Expander.Header>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding Path =Name}" />
-                                                    <TextBlock Text="{Binding Path=ItemCount, StringFormat=Count: {0}}" Margin="20,0,0,0"/>
-                                                </StackPanel>
-                                            </Expander.Header>
-                                            <ItemsPresenter />
-                                        </Expander>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </GroupStyle.ContainerStyle>
-                </GroupStyle>
-            </DataGrid.GroupStyle>
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="File Path"  Binding="{Binding fullPath}" Width="200"></DataGridTextColumn>
-                <DataGridTextColumn Header="Name" Binding="{Binding name}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Extension" Binding="{Binding extension}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Size"  Binding="{Binding size}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Date Created"  Binding="{Binding CreateDate}"></DataGridTextColumn>
-                -->
-        <!--<DataGridTextColumn Header="No. of File Changes"  Binding="{Binding count}" Width="150"></DataGridTextColumn>-->
-        <!--
-                <DataGridTextColumn Header="Last Accessed"  Binding="{Binding lastAccessTime}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Last Modification"  Binding="{Binding lastWriteTime}" Width="150"></DataGridTextColumn>
-                <DataGridTextColumn Header="Owner"  Binding="{Binding owner}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Potential Duplicates"  Binding="{Binding duplicates}"></DataGridTextColumn>
-                -->
-        <!--<DataGridTextColumn Header="Delta"  Binding="{Binding delta}"></DataGridTextColumn>-->
-        <!--<DataGridCheckBoxColumn Header="MoveToSharepoint" Binding="{Binding moveToSharepoint}" ClipboardContentBinding="{x:Null}" Width="150"/>-->
-        <!--
-            </DataGrid.Columns>
-        </DataGrid>-->
-        <Button x:Name="btnSearch" Content="Scan &amp; Report" HorizontalAlignment="Left" Margin="497,68,0,0" VerticalAlignment="Top" Width="155" Height="35" Click="BtnSearch_Click" FontSize="16" RenderTransformOrigin="-3.168,2.406"/>
-        <Button x:Name="btnCreateExcelReport" Content="Create Excel report" HorizontalAlignment="Left" Margin="497,125,0,0" VerticalAlignment="Top" Width="155" Height="35" FontSize="16" Click="BtnCreateExcelReport_Click"/>
-        <Button x:Name="btnMove" Content="Move Files" HorizontalAlignment="Left" Margin="497,179,0,0" VerticalAlignment="Top" Width="155" Height="35" FontSize="16" Click="BtnMove_Click"/>
-        <Label Content="Scans a network drive folder for file meta-data." HorizontalAlignment="Left" Margin="148,68,0,0" VerticalAlignment="Top" Height="35" Width="325"/>
-        <Label Content="Creates a formatted excel report " HorizontalAlignment="Left" Margin="148,125,0,0" VerticalAlignment="Top" Height="35" Width="325"/>
-        <Label Content="Moves files to pre-cleanse folder." HorizontalAlignment="Left" Margin="148,179,0,0" VerticalAlignment="Top" Height="35" Width="325"/>
-        <Button x:Name="btn_tempMoveFix" Content="Move fix Gov Relation" HorizontalAlignment="Left" Margin="497,306,0,0" VerticalAlignment="Top" Width="155" Height="36" Click="Btn_tempMoveFix_Click"/>
-        <Button x:Name="btn_CreateFolder" Content="CreateFolderforLegal(Delete)" HorizontalAlignment="Left" Margin="497,347,0,0" VerticalAlignment="Top" Width="155" Height="35" Click="Btn_CreateFolder_Click" RenderTransformOrigin="0.497,-0.617"/>
-        <Button x:Name="btnCount" Content="Count" HorizontalAlignment="Left" Margin="497,246,0,0" VerticalAlignment="Top" Width="155" Height="34" Click="BtnCount_Click"/>
-        <Button x:Name="btnCSVExport" Content="CSV" HorizontalAlignment="Left" Margin="497,401,0,0" VerticalAlignment="Top" Width="155" Height="26" Click="BtnCSVExport_Click"/>
-        <Button x:Name="btnTreeView" Content="Open Tree View" HorizontalAlignment="Left" Margin="317,246,0,0" VerticalAlignment="Top" Width="141" Height="33" Click="BtnTreeView_Click"/>
-        <!--<TextBox x:Name="txtSearch" HorizontalAlignment="Left" Height="35" Margin="218,63,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="173" FontSize="14"/>-->
-        <!--<Label x:Name="lblSearch" Content="Search Text" HorizontalAlignment="Left" Margin="73,63,0,0" VerticalAlignment="Top" Width="82" Height="35" RenderTransformOrigin="0.492,1.096"/>-->
-        <!--<Button x:Name="btnExport" Content="Export To CSV" HorizontalAlignment="Left" Margin="675,63,0,0" VerticalAlignment="Top" Width="105" Height="35" FontSize="16" Click="BtnExport_Click"/>-->
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        Title="File Analysis Dashboard" 
+        Height="950" 
+        Width="1600"
+        WindowStartupLocation="CenterScreen" 
+        Background="#0F0F0F"
+        WindowState="Maximized">
 
+    <Window.Resources>
+        <!-- Modern Button Style -->
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#007ACC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"
+                                            Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#007ACC"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#1E1E1E"/>
+                    <Setter Property="Foreground" Value="#666666"/>
+                    <Setter Property="BorderBrush" Value="#3F3F46"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Card Style -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="#1E1E1E"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="10"/>
+        </Style>
+
+        <!-- Header Text -->
+        <Style x:Key="HeaderText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+
+        <!-- Value Text -->
+        <Style x:Key="ValueText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#007ACC"/>
+            <Setter Property="FontSize" Value="32"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <!-- Label Text -->
+        <Style x:Key="LabelText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#1E1E1E" BorderBrush="#3F3F46" BorderThickness="0,0,0,1">
+            <Grid Margin="30,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="🚀 File Analysis Dashboard" 
+                               Foreground="#FFFFFF" 
+                               FontSize="28" 
+                               FontWeight="Bold"/>
+                    <TextBlock x:Name="PathText" 
+                               Text="No folder selected - Click 'Select Folder' to begin" 
+                               Foreground="#888888" 
+                               FontSize="12" 
+                               Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="SelectFolderBtn" 
+                            Content="📁 Select Folder" 
+                            Style="{StaticResource ModernButton}" 
+                            Click="SelectFolder_Click" 
+                            Margin="0,0,10,0"/>
+                    <Button x:Name="AnalyzeBtn" 
+                            Content="⚡ Start Analysis" 
+                            Style="{StaticResource ModernButton}" 
+                            Click="Analyze_Click" 
+                            IsEnabled="False"
+                            Margin="0,0,10,0"/>
+                    <Button x:Name="ExportBtn" 
+                            Content="💾 Export Report" 
+                            Style="{StaticResource ModernButton}" 
+                            Click="Export_Click" 
+                            IsEnabled="False"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="20">
+
+                <!-- Progress Panel -->
+                <Border x:Name="ProgressPanel" 
+                        Style="{StaticResource CardStyle}" 
+                        Visibility="Collapsed">
+                    <StackPanel>
+                        <TextBlock Text="⏳ Analyzing..." Style="{StaticResource HeaderText}" Margin="0,0,0,10"/>
+                        <ProgressBar x:Name="ProgressBar" 
+                                   Height="30" 
+                                   Minimum="0" 
+                                   Maximum="100" 
+                                   Value="0"
+                                   Background="#2D2D30"
+                                   Foreground="#007ACC"
+                                   BorderThickness="0"/>
+                        <TextBlock x:Name="ProgressText" 
+                                 Text="Preparing scan..." 
+                                 Style="{StaticResource LabelText}" 
+                                 Margin="0,10,0,0" 
+                                 TextWrapping="Wrap"
+                                 LineHeight="20"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Summary Cards -->
+                <Grid x:Name="SummaryGrid" Visibility="Collapsed" Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="📁 Total Files" Style="{StaticResource HeaderText}"/>
+                            <TextBlock x:Name="TotalFilesText" Text="0" Style="{StaticResource ValueText}"/>
+                            <TextBlock x:Name="TotalSizeText" Text="0 GB" Style="{StaticResource LabelText}" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="📂 Total Folders" Style="{StaticResource HeaderText}"/>
+                            <TextBlock x:Name="TotalFoldersText" Text="0" Style="{StaticResource ValueText}"/>
+                            <TextBlock x:Name="AvgFilesText" Text="Avg: 0 files per folder" Style="{StaticResource LabelText}" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="🔄 Duplicate Files" Style="{StaticResource HeaderText}"/>
+                            <TextBlock x:Name="DuplicatesText" Text="0" Style="{StaticResource ValueText}"/>
+                            <TextBlock x:Name="DuplicatesSizeText" Text="0 MB wasted" Style="{StaticResource LabelText}" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="3" Style="{StaticResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="📄 Empty Files" Style="{StaticResource HeaderText}"/>
+                            <TextBlock x:Name="EmptyFilesText" Text="0" Style="{StaticResource ValueText}"/>
+                            <TextBlock Text="0 bytes" Style="{StaticResource LabelText}" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Charts Section -->
+                <Grid x:Name="ChartsGrid" Visibility="Collapsed" Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="📊 File Size Distribution" Style="{StaticResource HeaderText}"/>
+                            <lvc:CartesianChart x:Name="SizeChart" Height="300" Background="Transparent">
+                                <lvc:CartesianChart.AxisX>
+                                    <lvc:Axis Foreground="#CCCCCC" ShowLabels="True"/>
+                                </lvc:CartesianChart.AxisX>
+                                <lvc:CartesianChart.AxisY>
+                                    <lvc:Axis Foreground="#CCCCCC" ShowLabels="True" LabelFormatter="{Binding YFormatter}"/>
+                                </lvc:CartesianChart.AxisY>
+                            </lvc:CartesianChart>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="🎯 Top 8 Extensions" Style="{StaticResource HeaderText}"/>
+                            <lvc:PieChart x:Name="ExtensionChart" 
+                                        Height="300" 
+                                        Background="Transparent" 
+                                        LegendLocation="Bottom"
+                                        Hoverable="True"
+                                        DataTooltip="{x:Null}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- Data Grid Section -->
+                <Border x:Name="DataGridPanel" Style="{StaticResource CardStyle}" Visibility="Collapsed" Margin="0,10,0,0">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="📋 Detailed File List" Style="{StaticResource HeaderText}" Margin="0" VerticalAlignment="Center"/>
+
+                            <TextBox x:Name="SearchBox" 
+                                   Grid.Column="1"
+                                   Width="350"
+                                   Height="34"
+                                   Margin="20,0"
+                                   Background="#2D2D30"
+                                   Foreground="#FFFFFF"
+                                   BorderBrush="#3F3F46"
+                                   Padding="10,8"
+                                   VerticalContentAlignment="Center"
+                                   FontSize="13"
+                                   TextChanged="SearchBox_TextChanged">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Style.Triggers>
+                                            <Trigger Property="Text" Value="">
+                                                <Setter Property="Background">
+                                                    <Setter.Value>
+                                                        <VisualBrush Stretch="None" AlignmentX="Left">
+                                                            <VisualBrush.Visual>
+                                                                <TextBlock Text="🔍 Search by name, extension, or path..." 
+                                                                         Foreground="#666666" 
+                                                                         FontSize="13"
+                                                                         Margin="10,0,0,0"/>
+                                                            </VisualBrush.Visual>
+                                                        </VisualBrush>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+
+                            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                <ComboBox x:Name="FilterCombo" 
+                                        Width="220" 
+                                        Height="34"
+                                        Background="#2D2D30"
+                                        Foreground="#FFFFFF"
+                                        BorderBrush="#3F3F46"
+                                        FontSize="13"
+                                        SelectionChanged="Filter_Changed">
+                                    <ComboBoxItem Content="All Files" IsSelected="True"/>
+                                    <ComboBoxItem Content="Duplicates Only"/>
+                                    <ComboBoxItem Content="Empty Files Only"/>
+                                    <ComboBoxItem Content="Large Files (>100MB)"/>
+                                    <ComboBoxItem Content="Recent Files (Last 7 Days)"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </Grid>
+
+                        <DataGrid x:Name="FilesDataGrid" 
+                                Height="450"
+                                AutoGenerateColumns="False" 
+                                Background="#1E1E1E"
+                                Foreground="#FFFFFF"
+                                BorderBrush="#3F3F46"
+                                GridLinesVisibility="Horizontal"
+                                HorizontalGridLinesBrush="#2D2D30"
+                                HeadersVisibility="Column"
+                                CanUserAddRows="False"
+                                IsReadOnly="True"
+                                AlternatingRowBackground="#252526"
+                                RowBackground="#1E1E1E"
+                                SelectionMode="Extended"
+                                SelectionUnit="FullRow">
+                            <DataGrid.ColumnHeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#2D2D30"/>
+                                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="Padding" Value="10,8"/>
+                                    <Setter Property="BorderBrush" Value="#3F3F46"/>
+                                    <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                </Style>
+                            </DataGrid.ColumnHeaderStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="File Name" Binding="{Binding Name}" Width="2*"/>
+                                <DataGridTextColumn Header="Extension" Binding="{Binding Extension}" Width="*"/>
+                                <DataGridTextColumn Header="Size" Binding="{Binding SizeFormatted}" Width="*"/>
+                                <DataGridTextColumn Header="Path" Binding="{Binding DirectoryName}" Width="3*"/>
+                                <DataGridTextColumn Header="Modified" Binding="{Binding LastModifiedFormatted}" Width="1.5*"/>
+                                <DataGridCheckBoxColumn Header="Duplicate" Binding="{Binding IsDuplicate}" Width="Auto"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <TextBlock x:Name="ResultCountText" 
+                                 Text="Showing 0 files" 
+                                 Style="{StaticResource LabelText}" 
+                                 Margin="0,10,0,0"
+                                 HorizontalAlignment="Right"/>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Window>

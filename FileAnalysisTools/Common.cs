@@ -1,184 +1,244 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FileAnalysisTools
 {
-    class Common
+    /// <summary>
+    /// Common utility methods for file analysis
+    /// Updated for .NET 8 with native long path support
+    /// </summary>
+    public static class Common
     {
-        private const int MaxStates = 6 * 50 + 100;
-        private const int MaxChars = 26;
-
-        private int[] Out = new int[MaxStates];
-        private int[] FF = new int[MaxStates];
-        private int[,] GF = new int[MaxStates, MaxChars];
-
-        public string FetchValues(string stringWithEqualSign)
+        /// <summary>
+        /// Gets all files in a directory recursively with error handling
+        /// </summary>
+        public static List<FileInfo> GetAllFiles(string path)
         {
+            var files = new List<FileInfo>();
+
             try
             {
-                string[] value = stringWithEqualSign.Split('=');
-                string returnValue = value[1];
-                return returnValue;
+                var dir = new DirectoryInfo(path);
+
+                // Use EnumerateFiles for better performance
+                var enumOptions = new EnumerationOptions
+                {
+                    RecurseSubdirectories = true,
+                    IgnoreInaccessible = true, // Skip access denied errors
+                    AttributesToSkip = FileAttributes.System,
+                    ReturnSpecialDirectories = false
+                };
+
+                files.AddRange(dir.EnumerateFiles("*.*", enumOptions));
             }
             catch (Exception ex)
             {
-                throw ex;
+                // Log error if needed
+                Console.WriteLine($"Error accessing {path}: {ex.Message}");
+            }
+
+            return files;
+        }
+
+        /// <summary>
+        /// Gets all files with progress callback - better for large directories
+        /// </summary>
+        public static IEnumerable<FileInfo> GetAllFilesWithProgress(
+            string path,
+            Action<int>? progressCallback = null)
+        {
+            int count = 0;
+            var enumOptions = new EnumerationOptions
+            {
+                RecurseSubdirectories = true,
+                IgnoreInaccessible = true,
+                AttributesToSkip = FileAttributes.System
+            };
+
+            var dir = new DirectoryInfo(path);
+
+            foreach (var file in dir.EnumerateFiles("*.*", enumOptions))
+            {
+                count++;
+                if (count % 100 == 0)
+                {
+                    progressCallback?.Invoke(count);
+                }
+                yield return file;
             }
         }
 
-        public string DisplayTextForExtension(string textWithSpecialChar)
+        /// <summary>
+        /// Gets all directories in a path recursively
+        /// </summary>
+        public static List<DirectoryInfo> GetAllDirectories(string path)
         {
+            var directories = new List<DirectoryInfo>();
+
             try
             {
-                StringBuilder sb = new StringBuilder();
-                foreach (char c in textWithSpecialChar)
+                var dir = new DirectoryInfo(path);
+
+                var enumOptions = new EnumerationOptions
                 {
-                    if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
-                        sb.Append(c);
-                }
-                return sb.ToString().ToUpper();
+                    RecurseSubdirectories = true,
+                    IgnoreInaccessible = true,
+                    AttributesToSkip = FileAttributes.System
+                };
+
+                directories.AddRange(dir.EnumerateDirectories("*", enumOptions));
             }
             catch (Exception ex)
             {
-                throw ex;
+                Console.WriteLine($"Error accessing directories in {path}: {ex.Message}");
+            }
+
+            return directories;
+        }
+
+        /// <summary>
+        /// Format bytes to human-readable string
+        /// </summary>
+        public static string FormatBytes(long bytes)
+        {
+            string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+            double len = bytes;
+            int order = 0;
+
+            while (len >= 1024 && order < sizes.Length - 1)
+            {
+                order++;
+                len /= 1024;
+            }
+
+            return $"{len:0.##} {sizes[order]}";
+        }
+
+        /// <summary>
+        /// Check if a file is accessible
+        /// </summary>
+        public static bool IsFileAccessible(string filePath)
+        {
+            try
+            {
+                using var fs = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
 
-        public string GetPastRetentionStatus(string lastModifiedDate, int retentionYear)
+        /// <summary>
+        /// Get file extension without dot
+        /// </summary>
+        public static string GetExtensionWithoutDot(string fileName)
         {
-            int modifiedYear = Convert.ToInt32(lastModifiedDate.Split(' ')[0].Split('/')[2]);
-            int currentYear = Convert.ToInt32(DateTime.Now.Year);
-            if ((currentYear - retentionYear) >= modifiedYear)
-                return "YES";
-            else
-                return "NO";
-            //DateTime lasModified = DateTime.ParseExact(lastModifiedDate, "d/M/yyyy hh:mm:ss tt", System.Globalization.CultureInfo.InvariantCulture); //  d/M/yyyy h:mm:ss tt 10/3/2014 2:28:45 AM
-            //if (DateTime.Now.Year - retentionYear >= lasModified.Year)
-            //    return "YES";
-            //else
-            //    return "NO";
+            var ext = Path.GetExtension(fileName);
+            return string.IsNullOrEmpty(ext) ? "No Extension" : ext.TrimStart('.').ToLower();
         }
 
-        private int BuildMatchingMachine(string[] words, char lowestChar = 'a', char highestChar = 'z')
+        /// <summary>
+        /// Check if path is valid
+        /// </summary>
+        public static bool IsValidPath(string path)
         {
-            Out = Enumerable.Repeat(0, Out.Length).ToArray();
-            FF = Enumerable.Repeat(-1, FF.Length).ToArray();
-
-            for (int i = 0; i < MaxStates; ++i)
+            try
             {
-                for (int j = 0; j < MaxChars; ++j)
-                {
-                    GF[i, j] = -1;
-                }
+                return Directory.Exists(path) || File.Exists(path);
             }
-
-            int states = 1;
-
-            for (int i = 0; i < words.Length; ++i)
+            catch
             {
-                string keyword = words[i];
-                int currentState = 0;
-
-                for (int j = 0; j < keyword.Length; ++j)
-                {
-                    int c = keyword[j] - lowestChar;
-
-                    if (GF[currentState, c] == -1)
-                    {
-                        GF[currentState, c] = states++;
-                    }
-
-                    currentState = GF[currentState, c];
-                }
-
-                Out[currentState] |= (1 << i);
+                return false;
             }
-
-            for (int c = 0; c < MaxChars; ++c)
-            {
-                if (GF[0, c] == -1)
-                {
-                    GF[0, c] = 0;
-                }
-            }
-
-            List<int> q = new List<int>();
-            for (int c = 0; c <= highestChar - lowestChar; ++c)
-            {
-                if (GF[0, c] != -1 && GF[0, c] != 0)
-                {
-                    FF[GF[0, c]] = 0;
-                    q.Add(GF[0, c]);
-                }
-            }
-
-            while (Convert.ToBoolean(q.Count))
-            {
-                int state = q[0];
-                q.RemoveAt(0);
-
-                for (int c = 0; c <= highestChar - lowestChar; ++c)
-                {
-                    if (GF[state, c] != -1)
-                    {
-                        int failure = FF[state];
-
-                        while (GF[failure, c] == -1)
-                        {
-                            failure = FF[failure];
-                        }
-
-                        failure = GF[failure, c];
-                        FF[GF[state, c]] = failure;
-                        Out[GF[state, c]] |= Out[failure];
-                        q.Add(GF[state, c]);
-                    }
-                }
-            }
-
-            return states;
         }
 
-        private int FindNextState(int currentState, char nextInput, char lowestChar = 'a')
+        /// <summary>
+        /// Get safe file name (removes invalid characters)
+        /// </summary>
+        public static string GetSafeFileName(string fileName)
         {
-            int answer = currentState;
-            int c = nextInput - lowestChar;
-
-            while (GF[answer, c] == -1)
-            {
-                answer = FF[answer];
-            }
-
-            return GF[answer, c];
+            var invalidChars = Path.GetInvalidFileNameChars();
+            return string.Join("_", fileName.Split(invalidChars, StringSplitOptions.RemoveEmptyEntries));
         }
 
-        public List<int> FindAllStates(string text, string[] keywords, char lowestChar = 'a', char highestChar = 'z')
+        /// <summary>
+        /// Calculate directory size recursively
+        /// </summary>
+        public static long GetDirectorySize(string path)
         {
-            BuildMatchingMachine(keywords, lowestChar, highestChar);
+            long size = 0;
 
-            int currentState = 0;
-            List<int> retVal = new List<int>();
-
-            for (int i = 0; i < text.Length; ++i)
+            try
             {
-                currentState = FindNextState(currentState, text[i], lowestChar);
-
-                if (Out[currentState] == 0)
-                    continue;
-
-                for (int j = 0; j < keywords.Length; ++j)
+                var dir = new DirectoryInfo(path);
+                var enumOptions = new EnumerationOptions
                 {
-                    if (Convert.ToBoolean(Out[currentState] & (1 << j)))
-                    {
-                        retVal.Insert(0, i - keywords[j].Length + 1);
-                    }
-                }
+                    RecurseSubdirectories = true,
+                    IgnoreInaccessible = true
+                };
+
+                size = dir.EnumerateFiles("*", enumOptions).Sum(file => file.Length);
+            }
+            catch
+            {
+                // Return 0 if error
             }
 
-            return retVal;
+            return size;
+        }
+
+        /// <summary>
+        /// Group files by extension
+        /// </summary>
+        public static Dictionary<string, List<FileInfo>> GroupByExtension(List<FileInfo> files)
+        {
+            return files
+                .GroupBy(f => GetExtensionWithoutDot(f.Name))
+                .ToDictionary(g => g.Key, g => g.ToList());
+        }
+
+        /// <summary>
+        /// Get file age in days
+        /// </summary>
+        public static int GetFileAgeInDays(FileInfo file)
+        {
+            return (DateTime.Now - file.LastWriteTime).Days;
+        }
+
+        /// <summary>
+        /// Check if file is empty
+        /// </summary>
+        public static bool IsFileEmpty(FileInfo file)
+        {
+            return file.Length == 0;
+        }
+
+        /// <summary>
+        /// Get largest files from a list
+        /// </summary>
+        public static List<FileInfo> GetLargestFiles(List<FileInfo> files, int count = 10)
+        {
+            return files.OrderByDescending(f => f.Length).Take(count).ToList();
+        }
+
+        /// <summary>
+        /// Get oldest files from a list
+        /// </summary>
+        public static List<FileInfo> GetOldestFiles(List<FileInfo> files, int count = 10)
+        {
+            return files.OrderBy(f => f.LastWriteTime).Take(count).ToList();
+        }
+
+        /// <summary>
+        /// Get newest files from a list
+        /// </summary>
+        public static List<FileInfo> GetNewestFiles(List<FileInfo> files, int count = 10)
+        {
+            return files.OrderByDescending(f => f.LastWriteTime).Take(count).ToList();
         }
     }
 }
