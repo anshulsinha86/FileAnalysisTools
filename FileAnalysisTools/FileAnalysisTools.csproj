@@ -2,29 +2,61 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>FileAnalysisTools</RootNamespace>
     <AssemblyName>FileAnalysisTools</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     
-    <!-- Long path support is built-in to .NET 8! -->
     <LangVersion>latest</LangVersion>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     
-    <!-- Suppress duplicate assembly attribute warnings -->
+    <!-- Suppress duplicate assembly warnings -->
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    
+    <!-- Suppress LiveCharts compatibility warning -->
+    <NoWarn>NU1701;CA1416</NoWarn>
     
     <!-- Application Info -->
     <Version>2.0.0</Version>
     <Authors>Anshul Sinha</Authors>
     <Company>File Analysis Tools</Company>
     <Product>File Analysis Dashboard</Product>
-    <Description>Advanced file analysis tool with beautiful dashboard and performance optimizations</Description>
+    <Description>Advanced file analysis tool with beautiful dashboard</Description>
     <Copyright>Copyright © 2024</Copyright>
     
+    <!-- Standalone Deployment -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    
+    <!-- Performance -->
+    <TieredCompilation>true</TieredCompilation>
+    <TieredCompilationQuickJit>true</TieredCompilationQuickJit>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Modern Excel export without Office installation -->
+    <PackageReference Include="EPPlus" Version="7.5.1" />
+    
+    <!-- Beautiful charts for dashboard -->
+    <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Exclude build artifacts -->
+    <Compile Remove="obj\**" />
+    <EmbeddedResource Remove="obj\**" />
+    <None Remove="obj\**" />
+    <Page Remove="obj\**" />
+  </ItemGroup>
+
     <!-- Standalone Deployment Settings -->
+   <PropertyGroup>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>

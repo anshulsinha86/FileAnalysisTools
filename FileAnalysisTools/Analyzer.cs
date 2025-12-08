@@ -292,20 +292,31 @@ namespace FileAnalysisTools
     /// </summary>
     public class FileInfoModel
     {
-        public string Name { get; set; } = string.Empty;
-        public string Extension { get; set; } = string.Empty;
+        public string Name { get; set; }
+        public string Extension { get; set; }
         public long Size { get; set; }
-        public string DirectoryName { get; set; } = string.Empty;
-        public string FullPath { get; set; } = string.Empty;
+        public string DirectoryName { get; set; }
+        public string FullPath { get; set; }
         public DateTime LastModified { get; set; }
         public DateTime CreatedDate { get; set; }
         public bool IsReadOnly { get; set; }
-        public string Attributes { get; set; } = string.Empty;
-        public string Hash { get; set; } = string.Empty;
+        public string Attributes { get; set; }
+        public string Hash { get; set; }
         public bool IsDuplicate { get; set; }
+        public bool IsSelected { get; set; }
 
         public string SizeFormatted => Common.FormatBytes(Size);
         public string LastModifiedFormatted => LastModified.ToString("yyyy-MM-dd HH:mm:ss");
+
+        public FileInfoModel()
+        {
+            Name = string.Empty;
+            Extension = string.Empty;
+            DirectoryName = string.Empty;
+            FullPath = string.Empty;
+            Attributes = string.Empty;
+            Hash = string.Empty;
+        }
     }
 
     /// <summary>

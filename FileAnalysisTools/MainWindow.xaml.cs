@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
+using System.Windows.Media;
 using LiveCharts;
 using LiveCharts.Wpf;
 using OfficeOpenXml;
@@ -17,11 +18,10 @@ namespace FileAnalysisTools
 {
     public partial class MainWindow : Window
     {
-        private string? selectedPath;
-        // Change the declaration of `allFiles` from `readonly` to a regular field.  
-        private List<FileInfoModel> allFiles = new();
-        private readonly ObservableCollection<FileInfoModel> displayedFiles = new();
-        private CancellationTokenSource? cts;
+        private string selectedPath;
+        private readonly List<FileInfoModel> allFiles = new List<FileInfoModel>();
+        private readonly ObservableCollection<FileInfoModel> displayedFiles = new ObservableCollection<FileInfoModel>();
+        private CancellationTokenSource cts;
 
         public MainWindow()
         {
@@ -34,28 +34,28 @@ namespace FileAnalysisTools
 
         private void SelectFolder_Click(object sender, RoutedEventArgs e)
         {
-            using var dialog = new FolderBrowserDialog
+            using (var dialog = new FolderBrowserDialog())
             {
-                Description = "Select a folder or drive to analyze",
-                ShowNewFolderButton = false,
-                UseDescriptionForTitle = true
-            };
+                dialog.Description = "Select a folder or drive to analyze";
+                dialog.ShowNewFolderButton = false;
+                dialog.UseDescriptionForTitle = true;
 
-            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                selectedPath = dialog.SelectedPath;
-                PathText.Text = $"Selected: {selectedPath}";
-                AnalyzeBtn.IsEnabled = true;
-                ExportBtn.IsEnabled = false;
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    selectedPath = dialog.SelectedPath;
+                    PathText.Text = $"Selected: {selectedPath}";
+                    AnalyzeBtn.IsEnabled = true;
+                    ExportBtn.IsEnabled = false;
 
-                // Reset UI
-                SummaryGrid.Visibility = Visibility.Collapsed;
-                ChartsGrid.Visibility = Visibility.Collapsed;
-                DataGridPanel.Visibility = Visibility.Collapsed;
+                    // Reset UI
+                    SummaryGrid.Visibility = Visibility.Collapsed;
+                    ChartsGrid.Visibility = Visibility.Collapsed;
+                    DataGridPanel.Visibility = Visibility.Collapsed;
 
-                // Clear previous data
-                allFiles.Clear();
-                displayedFiles.Clear();
+                    // Clear previous data
+                    allFiles.Clear();
+                    displayedFiles.Clear();
+                }
             }
         }
 
@@ -89,7 +89,7 @@ namespace FileAnalysisTools
                 // Phase 1: Scan files
                 var scanProgress = new Progress<ScanProgress>(p =>
                 {
-                    ProgressBar.Value = p.Percentage * 0.5; // First 50%
+                    ProgressBar.Value = p.Percentage * 0.5;
 
                     var elapsed = DateTime.Now - startTime;
                     var estimatedTotal = elapsed.TotalSeconds / (p.Percentage / 100.0);
@@ -104,7 +104,7 @@ namespace FileAnalysisTools
                                       $"⏱️ Elapsed: {elapsed:mm\\:ss} | Estimated remaining: {(remaining.TotalSeconds > 0 ? remaining.ToString(@"mm\:ss") : "calculating...")}";
                 });
 
-                allFiles = await Analyzer.ScanDirectoryParallelAsync(selectedPath, scanProgress, cts.Token);
+                allFiles.AddRange(await Analyzer.ScanDirectoryParallelAsync(selectedPath, scanProgress, cts.Token));
 
                 if (allFiles.Count == 0)
                 {
@@ -118,11 +118,11 @@ namespace FileAnalysisTools
                 var filesToHash = allFiles.Where(f => f.Size > 0 && f.Size < 100 * 1024 * 1024).Count();
 
                 ProgressText.Text = $"🔐 Preparing to hash {filesToHash:N0} files for duplicate detection...";
-                await Task.Delay(500); // Brief pause to show the message
+                await Task.Delay(500);
 
                 var hashProgress = new Progress<HashProgress>(p =>
                 {
-                    ProgressBar.Value = 50 + (p.Percentage * 0.5); // Second 50%
+                    ProgressBar.Value = 50 + (p.Percentage * 0.5);
 
                     var elapsed = DateTime.Now - hashStartTime;
                     var filesPerSecond = p.FilesProcessed / Math.Max(elapsed.TotalSeconds, 1);
@@ -212,16 +212,16 @@ namespace FileAnalysisTools
             TotalFilesText.Text = stats.TotalFiles.ToString("N0");
             TotalSizeText.Text = Common.FormatBytes(stats.TotalSize);
 
-            TotalFoldersText.Text = stats.TotalDirectories.ToString("N0");
-            AvgFilesText.Text = stats.TotalDirectories > 0
-                ? $"Avg: {stats.TotalFiles / stats.TotalDirectories:N0} files per folder"
-                : "Avg: 0 files per folder";
-
             var duplicates = allFiles.Where(f => f.IsDuplicate).ToList();
             DuplicatesText.Text = duplicates.Count.ToString("N0");
             DuplicatesSizeText.Text = $"{Common.FormatBytes(duplicates.Sum(f => f.Size))} wasted";
 
             EmptyFilesText.Text = stats.EmptyFiles.ToString("N0");
+
+            // Large files card
+            var largeFiles = allFiles.Where(f => f.Size > 100 * 1024 * 1024).ToList();
+            LargeFilesText.Text = largeFiles.Count.ToString("N0");
+            LargeFilesSizeText.Text = $"{Common.FormatBytes(largeFiles.Sum(f => f.Size))} (>100MB)";
 
             // Update charts
             UpdateSizeDistributionChart(stats);
@@ -284,11 +284,11 @@ namespace FileAnalysisTools
             // Apply filter
             filtered = filter switch
             {
-                1 => filtered.Where(f => f.IsDuplicate), // Duplicates only
-                2 => filtered.Where(f => f.Size == 0), // Empty files
-                3 => filtered.Where(f => f.Size > 100 * 1024 * 1024), // Large files >100MB
-                4 => filtered.Where(f => f.LastModified >= DateTime.Now.AddDays(-7)), // Recent files
-                _ => filtered // All files
+                1 => filtered.Where(f => f.IsDuplicate),
+                2 => filtered.Where(f => f.Size == 0),
+                3 => filtered.Where(f => f.Size > 100 * 1024 * 1024),
+                4 => filtered.Where(f => f.LastModified >= DateTime.Now.AddDays(-7)),
+                _ => filtered
             };
 
             // Apply search
@@ -326,8 +326,32 @@ namespace FileAnalysisTools
                 RefreshDataGrid();
         }
 
-        // PART 2 - Add this Export_Click method to MainWindow.xaml.cs
+        // Card click handlers
+        private void ShowAllFiles_Click(object sender, RoutedEventArgs e)
+        {
+            FilterCombo.SelectedIndex = 0;
+            DataGridPanel.Visibility = Visibility.Visible;
+        }
 
+        private void ShowDuplicates_Click(object sender, RoutedEventArgs e)
+        {
+            FilterCombo.SelectedIndex = 1;
+            DataGridPanel.Visibility = Visibility.Visible;
+        }
+
+        private void ShowEmptyFiles_Click(object sender, RoutedEventArgs e)
+        {
+            FilterCombo.SelectedIndex = 2;
+            DataGridPanel.Visibility = Visibility.Visible;
+        }
+
+        private void ShowLargeFiles_Click(object sender, RoutedEventArgs e)
+        {
+            FilterCombo.SelectedIndex = 3;
+            DataGridPanel.Visibility = Visibility.Visible;
+        }
+
+        // EXPORT FUNCTIONALITY - CONTINUED IN NEXT COMMENT
         private void Export_Click(object sender, RoutedEventArgs e)
         {
             if (allFiles.Count == 0)
@@ -386,151 +410,85 @@ namespace FileAnalysisTools
 
         private void ExportToExcel(string filePath)
         {
-            using var package = new ExcelPackage();
-
-            // Summary worksheet
-            var summarySheet = package.Workbook.Worksheets.Add("Summary");
-            var stats = Analyzer.GetStatistics(allFiles);
-
-            summarySheet.Cells[1, 1].Value = "File Analysis Report";
-            summarySheet.Cells[1, 1].Style.Font.Size = 18;
-            summarySheet.Cells[1, 1].Style.Font.Bold = true;
-
-            summarySheet.Cells[3, 1].Value = "Analysis Date:";
-            summarySheet.Cells[3, 2].Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-
-            summarySheet.Cells[4, 1].Value = "Analyzed Path:";
-            summarySheet.Cells[4, 2].Value = selectedPath;
-
-            summarySheet.Cells[6, 1].Value = "Total Files:";
-            summarySheet.Cells[6, 2].Value = stats.TotalFiles;
-
-            summarySheet.Cells[7, 1].Value = "Total Size:";
-            summarySheet.Cells[7, 2].Value = Common.FormatBytes(stats.TotalSize);
-
-            summarySheet.Cells[8, 1].Value = "Total Directories:";
-            summarySheet.Cells[8, 2].Value = stats.TotalDirectories;
-
-            summarySheet.Cells[9, 1].Value = "Empty Files:";
-            summarySheet.Cells[9, 2].Value = stats.EmptyFiles;
-
-            summarySheet.Cells[10, 1].Value = "Duplicate Files:";
-            summarySheet.Cells[10, 2].Value = allFiles.Count(f => f.IsDuplicate);
-
-            summarySheet.Cells[11, 1].Value = "Wasted Space:";
-            summarySheet.Cells[11, 2].Value = Common.FormatBytes(allFiles.Where(f => f.IsDuplicate).Sum(f => f.Size));
-
-            summarySheet.Cells[13, 1].Value = "Largest File:";
-            summarySheet.Cells[13, 2].Value = stats.LargestFile?.Name;
-            summarySheet.Cells[13, 3].Value = stats.LargestFile?.SizeFormatted;
-
-            summarySheet.Cells[14, 1].Value = "Average File Size:";
-            summarySheet.Cells[14, 2].Value = Common.FormatBytes(stats.AverageFileSize);
-
-            summarySheet.Column(1).Width = 25;
-            summarySheet.Column(2).Width = 40;
-            summarySheet.Column(3).Width = 15;
-
-            // All Files worksheet
-            var filesSheet = package.Workbook.Worksheets.Add("All Files");
-
-            filesSheet.Cells[1, 1].Value = "File Name";
-            filesSheet.Cells[1, 2].Value = "Extension";
-            filesSheet.Cells[1, 3].Value = "Size (Bytes)";
-            filesSheet.Cells[1, 4].Value = "Size";
-            filesSheet.Cells[1, 5].Value = "Directory";
-            filesSheet.Cells[1, 6].Value = "Modified Date";
-            filesSheet.Cells[1, 7].Value = "Is Duplicate";
-            filesSheet.Cells[1, 8].Value = "Hash";
-
-            filesSheet.Row(1).Style.Font.Bold = true;
-
-            int row = 2;
-            foreach (var file in allFiles)
+            using (var package = new ExcelPackage())
             {
-                filesSheet.Cells[row, 1].Value = file.Name;
-                filesSheet.Cells[row, 2].Value = file.Extension;
-                filesSheet.Cells[row, 3].Value = file.Size;
-                filesSheet.Cells[row, 4].Value = file.SizeFormatted;
-                filesSheet.Cells[row, 5].Value = file.DirectoryName;
-                filesSheet.Cells[row, 6].Value = file.LastModifiedFormatted;
-                filesSheet.Cells[row, 7].Value = file.IsDuplicate ? "Yes" : "No";
-                filesSheet.Cells[row, 8].Value = file.Hash;
-                row++;
-            }
+                var summarySheet = package.Workbook.Worksheets.Add("Summary");
+                var stats = Analyzer.GetStatistics(allFiles);
 
-            filesSheet.Cells[filesSheet.Dimension.Address].AutoFitColumns();
+                summarySheet.Cells[1, 1].Value = "File Analysis Report";
+                summarySheet.Cells[1, 1].Style.Font.Size = 18;
+                summarySheet.Cells[1, 1].Style.Font.Bold = true;
 
-            // Duplicates worksheet
-            var duplicates = allFiles.Where(f => f.IsDuplicate).ToList();
-            if (duplicates.Any())
-            {
-                var dupsSheet = package.Workbook.Worksheets.Add("Duplicates");
+                summarySheet.Cells[3, 1].Value = "Analysis Date:";
+                summarySheet.Cells[3, 2].Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-                dupsSheet.Cells[1, 1].Value = "File Name";
-                dupsSheet.Cells[1, 2].Value = "Size";
-                dupsSheet.Cells[1, 3].Value = "Path";
-                dupsSheet.Cells[1, 4].Value = "Hash";
+                summarySheet.Cells[4, 1].Value = "Analyzed Path:";
+                summarySheet.Cells[4, 2].Value = selectedPath;
 
-                dupsSheet.Row(1).Style.Font.Bold = true;
+                summarySheet.Cells[6, 1].Value = "Total Files:";
+                summarySheet.Cells[6, 2].Value = stats.TotalFiles;
 
-                row = 2;
-                foreach (var file in duplicates)
+                summarySheet.Cells[7, 1].Value = "Total Size:";
+                summarySheet.Cells[7, 2].Value = Common.FormatBytes(stats.TotalSize);
+
+                summarySheet.Cells[8, 1].Value = "Total Directories:";
+                summarySheet.Cells[8, 2].Value = stats.TotalDirectories;
+
+                summarySheet.Cells[9, 1].Value = "Empty Files:";
+                summarySheet.Cells[9, 2].Value = stats.EmptyFiles;
+
+                summarySheet.Cells[10, 1].Value = "Duplicate Files:";
+                summarySheet.Cells[10, 2].Value = allFiles.Count(f => f.IsDuplicate);
+
+                summarySheet.Column(1).Width = 25;
+                summarySheet.Column(2).Width = 40;
+
+                var filesSheet = package.Workbook.Worksheets.Add("All Files");
+
+                filesSheet.Cells[1, 1].Value = "File Name";
+                filesSheet.Cells[1, 2].Value = "Extension";
+                filesSheet.Cells[1, 3].Value = "Size (Bytes)";
+                filesSheet.Cells[1, 4].Value = "Size";
+                filesSheet.Cells[1, 5].Value = "Directory";
+                filesSheet.Cells[1, 6].Value = "Modified Date";
+                filesSheet.Cells[1, 7].Value = "Is Duplicate";
+
+                filesSheet.Row(1).Style.Font.Bold = true;
+
+                int row = 2;
+                foreach (var file in allFiles)
                 {
-                    dupsSheet.Cells[row, 1].Value = file.Name;
-                    dupsSheet.Cells[row, 2].Value = file.SizeFormatted;
-                    dupsSheet.Cells[row, 3].Value = file.FullPath;
-                    dupsSheet.Cells[row, 4].Value = file.Hash;
+                    filesSheet.Cells[row, 1].Value = file.Name;
+                    filesSheet.Cells[row, 2].Value = file.Extension;
+                    filesSheet.Cells[row, 3].Value = file.Size;
+                    filesSheet.Cells[row, 4].Value = file.SizeFormatted;
+                    filesSheet.Cells[row, 5].Value = file.DirectoryName;
+                    filesSheet.Cells[row, 6].Value = file.LastModifiedFormatted;
+                    filesSheet.Cells[row, 7].Value = file.IsDuplicate ? "Yes" : "No";
                     row++;
                 }
 
-                dupsSheet.Cells[dupsSheet.Dimension.Address].AutoFitColumns();
+                filesSheet.Cells[filesSheet.Dimension.Address].AutoFitColumns();
+
+                package.SaveAs(new FileInfo(filePath));
             }
-
-            // Extension Statistics worksheet
-            var extSheet = package.Workbook.Worksheets.Add("Extension Statistics");
-
-            extSheet.Cells[1, 1].Value = "Extension";
-            extSheet.Cells[1, 2].Value = "Count";
-            extSheet.Cells[1, 3].Value = "Total Size";
-            extSheet.Cells[1, 4].Value = "Average Size";
-
-            extSheet.Row(1).Style.Font.Bold = true;
-
-            row = 2;
-            foreach (var ext in stats.ExtensionBreakdown.OrderByDescending(e => e.Value.Count))
-            {
-                extSheet.Cells[row, 1].Value = ext.Key;
-                extSheet.Cells[row, 2].Value = ext.Value.Count;
-                extSheet.Cells[row, 3].Value = Common.FormatBytes(ext.Value.TotalSize);
-                extSheet.Cells[row, 4].Value = Common.FormatBytes(ext.Value.AverageSize);
-                row++;
-            }
-
-            extSheet.Cells[extSheet.Dimension.Address].AutoFitColumns();
-
-            // Save
-            package.SaveAs(new FileInfo(filePath));
         }
 
         private void ExportToCsv(string filePath)
         {
-            using var writer = new StreamWriter(filePath);
-
-            // Write header
-            writer.WriteLine("File Name,Extension,Size (Bytes),Size,Directory,Modified Date,Is Duplicate,Hash");
-
-            // Write data
-            foreach (var file in allFiles)
+            using (var writer = new StreamWriter(filePath))
             {
-                writer.WriteLine($"\"{file.Name}\",\"{file.Extension}\",{file.Size}," +
-                    $"\"{file.SizeFormatted}\",\"{file.DirectoryName}\"," +
-                    $"\"{file.LastModifiedFormatted}\",{(file.IsDuplicate ? "Yes" : "No")}," +
-                    $"\"{file.Hash}\"");
+                writer.WriteLine("File Name,Extension,Size (Bytes),Size,Directory,Modified Date,Is Duplicate");
+
+                foreach (var file in allFiles)
+                {
+                    writer.WriteLine($"\"{file.Name}\",\"{file.Extension}\",{file.Size}," +
+                        $"\"{file.SizeFormatted}\",\"{file.DirectoryName}\"," +
+                        $"\"{file.LastModifiedFormatted}\",{(file.IsDuplicate ? "Yes" : "No")}");
+                }
             }
         }
 
-        // Add this to handle window closing if analysis is running
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             if (cts != null && !cts.IsCancellationRequested)

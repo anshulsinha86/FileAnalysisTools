@@ -58,7 +58,7 @@
 
         <!-- Header Text -->
         <Style x:Key="HeaderText" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="#E0E0E0"/>
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Margin" Value="0,0,0,15"/>
@@ -66,15 +66,51 @@
 
         <!-- Value Text -->
         <Style x:Key="ValueText" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#007ACC"/>
+            <Setter Property="Foreground" Value="#4FC3F7"/>
             <Setter Property="FontSize" Value="32"/>
             <Setter Property="FontWeight" Value="Bold"/>
         </Style>
 
         <!-- Label Text -->
         <Style x:Key="LabelText" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="Foreground" Value="#B0B0B0"/>
             <Setter Property="FontSize" Value="13"/>
+        </Style>
+        
+        <!-- Link Text-->
+        <Style x:Key="LinkText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#4FC3F7"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="TextDecorations" Value="Underline"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <!-- Clickable Card Button Style -->
+        <Style x:Key="CardButton" TargetType="Button">
+            <Setter Property="Background" Value="#1E1E1E"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="8"
+                        Padding="20"
+                        Margin="10">
+                            <ContentPresenter />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#252526"/>
+                    <Setter Property="BorderBrush" Value="#007ACC"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Window.Resources>
 
@@ -152,8 +188,8 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Summary Cards -->
-                <Grid x:Name="SummaryGrid" Visibility="Collapsed" Margin="0,10,0,0">
+                <!-- Summary Cards - NOW CLICKABLE -->
+                <Grid x:Name="SummaryGrid" Visibility="Collapsed">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
@@ -161,37 +197,41 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+                    <Button Grid.Column="0" Style="{StaticResource CardButton}" Click="ShowAllFiles_Click">
                         <StackPanel>
                             <TextBlock Text="📁 Total Files" Style="{StaticResource HeaderText}"/>
                             <TextBlock x:Name="TotalFilesText" Text="0" Style="{StaticResource ValueText}"/>
                             <TextBlock x:Name="TotalSizeText" Text="0 GB" Style="{StaticResource LabelText}" Margin="0,5,0,0"/>
+                            <TextBlock Text="Click to view →" Style="{StaticResource LinkText}" Margin="0,10,0,0"/>
                         </StackPanel>
-                    </Border>
+                    </Button>
 
-                    <Border Grid.Column="1" Style="{StaticResource CardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="📂 Total Folders" Style="{StaticResource HeaderText}"/>
-                            <TextBlock x:Name="TotalFoldersText" Text="0" Style="{StaticResource ValueText}"/>
-                            <TextBlock x:Name="AvgFilesText" Text="Avg: 0 files per folder" Style="{StaticResource LabelText}" Margin="0,5,0,0"/>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+                    <Button Grid.Column="1" Style="{StaticResource CardButton}" Click="ShowDuplicates_Click">
                         <StackPanel>
                             <TextBlock Text="🔄 Duplicate Files" Style="{StaticResource HeaderText}"/>
                             <TextBlock x:Name="DuplicatesText" Text="0" Style="{StaticResource ValueText}"/>
                             <TextBlock x:Name="DuplicatesSizeText" Text="0 MB wasted" Style="{StaticResource LabelText}" Margin="0,5,0,0"/>
+                            <TextBlock Text="Click to review →" Style="{StaticResource LinkText}" Margin="0,10,0,0"/>
                         </StackPanel>
-                    </Border>
+                    </Button>
 
-                    <Border Grid.Column="3" Style="{StaticResource CardStyle}">
+                    <Button Grid.Column="2" Style="{StaticResource CardButton}" Click="ShowEmptyFiles_Click">
                         <StackPanel>
                             <TextBlock Text="📄 Empty Files" Style="{StaticResource HeaderText}"/>
                             <TextBlock x:Name="EmptyFilesText" Text="0" Style="{StaticResource ValueText}"/>
-                            <TextBlock Text="0 bytes" Style="{StaticResource LabelText}" Margin="0,5,0,0"/>
+                            <TextBlock x:Name="EmptyFilesCountText" Text="0 bytes wasted" Style="{StaticResource LabelText}" Margin="0,5,0,0"/>
+                            <TextBlock Text="Click to clean →" Style="{StaticResource LinkText}" Margin="0,10,0,0"/>
                         </StackPanel>
-                    </Border>
+                    </Button>
+
+                    <Button Grid.Column="3" Style="{StaticResource CardButton}" Click="ShowLargeFiles_Click">
+                        <StackPanel>
+                            <TextBlock Text="💎 Large Files" Style="{StaticResource HeaderText}"/>
+                            <TextBlock x:Name="LargeFilesText" Text="0" Style="{StaticResource ValueText}"/>
+                            <TextBlock x:Name="LargeFilesSizeText" Text="0 GB (>100MB)" Style="{StaticResource LabelText}" Margin="0,5,0,0"/>
+                            <TextBlock Text="Click to review →" Style="{StaticResource LinkText}" Margin="0,10,0,0"/>
+                        </StackPanel>
+                    </Button>
                 </Grid>
 
                 <!-- Charts Section -->
