@@ -19,7 +19,8 @@ namespace FileAnalysisTools
     public partial class MainWindow : Window
     {
         private string selectedPath;
-        private readonly List<FileInfoModel> allFiles = new List<FileInfoModel>();
+        // Change the declaration of `allFiles` from `readonly` to a regular field.  
+        private List<FileInfoModel> allFiles = new List<FileInfoModel>();
         private readonly ObservableCollection<FileInfoModel> displayedFiles = new ObservableCollection<FileInfoModel>();
         private CancellationTokenSource cts;
 
@@ -104,7 +105,8 @@ namespace FileAnalysisTools
                                       $"⏱️ Elapsed: {elapsed:mm\\:ss} | Estimated remaining: {(remaining.TotalSeconds > 0 ? remaining.ToString(@"mm\:ss") : "calculating...")}";
                 });
 
-                allFiles.AddRange(await Analyzer.ScanDirectoryParallelAsync(selectedPath, scanProgress, cts.Token));
+                //allFiles.AddRange(await Analyzer.ScanDirectoryParallelAsync(selectedPath, scanProgress, cts.Token));
+                allFiles = await FastAnalyzer.ScanDirectoryOptimizedAsync(selectedPath, scanProgress, cts.Token);
 
                 if (allFiles.Count == 0)
                 {
@@ -138,8 +140,8 @@ namespace FileAnalysisTools
                                       $"⚡ Speed: {filesPerSecond:F0} files/sec | ⏱️ Remaining: {(estimatedRemaining.TotalSeconds > 0 && estimatedRemaining.TotalSeconds < 3600 ? estimatedRemaining.ToString(@"mm\:ss") : "calculating...")}";
                 });
 
-                var duplicates = await Analyzer.DetectDuplicatesAsync(allFiles, hashProgress, cts.Token);
-
+                //var duplicates = await Analyzer.DetectDuplicatesAsync(allFiles, hashProgress, cts.Token);
+                var duplicates = await FastAnalyzer.DetectDuplicatesSmartAsync(allFiles, hashProgress, cts.Token);
                 // Mark duplicates
                 foreach (var group in duplicates)
                 {
@@ -509,6 +511,28 @@ namespace FileAnalysisTools
             }
 
             base.OnClosing(e);
+        }
+
+        private async void CleanEmptyFolders_Click(object sender, RoutedEventArgs e)
+        {
+            var emptyFolders = await Task.Run(() =>
+                FastAnalyzer.FindEmptyFolders(selectedPath));
+
+            if (emptyFolders.Count > 0)
+            {
+                var result = MessageBox.Show(
+                    $"Found {emptyFolders.Count:N0} empty folders.\n\nDelete them?",
+                    "Empty Folders Found",
+                    MessageBoxButton.YesNo);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    foreach (var folder in emptyFolders)
+                    {
+                        try { Directory.Delete(folder); } catch { }
+                    }
+                }
+            }
         }
     }
 }
