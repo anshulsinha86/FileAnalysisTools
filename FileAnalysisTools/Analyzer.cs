@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -99,7 +100,7 @@ namespace FileAnalysisTools
                 }
             }, cancellationToken);
 
-            return files.ToList();
+            return [.. files];
         }
 
         /// <summary>
@@ -304,6 +305,8 @@ namespace FileAnalysisTools
         public string Hash { get; set; }
         public bool IsDuplicate { get; set; }
         public bool IsSelected { get; set; }
+        public bool MarkedForRemoval { get; set; }  // NEW: For safe deletion
+        public string DuplicateGroupId { get; set; } // NEW: To group duplicates
 
         public string SizeFormatted => Common.FormatBytes(Size);
         public string LastModifiedFormatted => LastModified.ToString("yyyy-MM-dd HH:mm:ss");
@@ -316,6 +319,7 @@ namespace FileAnalysisTools
             FullPath = string.Empty;
             Attributes = string.Empty;
             Hash = string.Empty;
+            DuplicateGroupId = string.Empty;
         }
     }
 

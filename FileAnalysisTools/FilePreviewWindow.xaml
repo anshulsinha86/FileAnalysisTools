@@ -1,0 +1,133 @@
+﻿<Window x:Class="FileAnalysisTools.FilePreviewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="File Preview" 
+        Height="700" 
+        Width="900"
+        WindowStartupLocation="CenterOwner"
+        Background="#0F0F0F">
+
+    <Window.Resources>
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#007ACC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="📄 File Preview" 
+                       FontSize="24" 
+                       FontWeight="Bold" 
+                       Foreground="#E0E0E0"/>
+            <TextBlock x:Name="FileNameText" 
+                       Text="filename.txt" 
+                       FontSize="16" 
+                       Foreground="#4FC3F7" 
+                       Margin="0,10,0,0"/>
+            <TextBlock x:Name="FileInfoText" 
+                       Text="Size: 1.2 MB | Modified: 2024-12-01" 
+                       FontSize="13" 
+                       Foreground="#B0B0B0" 
+                       Margin="0,5,0,0"/>
+        </StackPanel>
+
+        <!-- Preview Area -->
+        <Border Grid.Row="1" 
+                Background="#1E1E1E" 
+                BorderBrush="#3F3F46" 
+                BorderThickness="1" 
+                CornerRadius="8" 
+                Padding="15">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Text Preview -->
+                    <TextBlock x:Name="TextPreview" 
+                               Foreground="#E0E0E0" 
+                               FontFamily="Consolas" 
+                               FontSize="12" 
+                               TextWrapping="Wrap"
+                               Visibility="Collapsed"/>
+
+                    <!-- Image Preview -->
+                    <Image x:Name="ImagePreview" 
+                           Stretch="Uniform" 
+                           MaxHeight="500"
+                           Visibility="Collapsed"/>
+
+                    <!-- Generic File Info -->
+                    <StackPanel x:Name="GenericPreview" Visibility="Collapsed">
+                        <TextBlock Text="File Properties" 
+                                   FontSize="16" 
+                                   FontWeight="Bold" 
+                                   Foreground="#E0E0E0" 
+                                   Margin="0,0,0,10"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Full Path:" Foreground="#B0B0B0" Margin="0,5"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="PathText" Foreground="#E0E0E0" Margin="0,5" TextWrapping="Wrap"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Size:" Foreground="#B0B0B0" Margin="0,5"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="SizeText" Foreground="#E0E0E0" Margin="0,5"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Type:" Foreground="#B0B0B0" Margin="0,5"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="TypeText" Foreground="#E0E0E0" Margin="0,5"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Created:" Foreground="#B0B0B0" Margin="0,5"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" x:Name="CreatedText" Foreground="#E0E0E0" Margin="0,5"/>
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Modified:" Foreground="#B0B0B0" Margin="0,5"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" x:Name="ModifiedText" Foreground="#E0E0E0" Margin="0,5"/>
+
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Attributes:" Foreground="#B0B0B0" Margin="0,5"/>
+                            <TextBlock Grid.Row="5" Grid.Column="1" x:Name="AttributesText" Foreground="#E0E0E0" Margin="0,5"/>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Actions -->
+        <StackPanel Grid.Row="2" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right" 
+                    Margin="0,20,0,0">
+            <Button Content="📂 Open in Explorer" 
+                    Style="{StaticResource ModernButton}" 
+                    Click="OpenInExplorer_Click" 
+                    Margin="0,0,10,0"/>
+            <Button Content="✅ Keep This File" 
+                    Style="{StaticResource ModernButton}" 
+                    Click="KeepFile_Click" 
+                    Margin="0,0,10,0"/>
+            <Button Content="🗑️ Mark for Removal" 
+                    Style="{StaticResource ModernButton}" 
+                    Click="RemoveFile_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

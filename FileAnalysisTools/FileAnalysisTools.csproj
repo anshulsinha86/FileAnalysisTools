@@ -70,13 +70,13 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
 
-  <ItemGroup>
-    <!-- Modern Excel export without Office installation -->
+  <!--<ItemGroup>
+    --><!-- Modern Excel export without Office installation --><!--
     <PackageReference Include="EPPlus" Version="7.5.1" />
     
-    <!-- Beautiful charts for dashboard -->
+    --><!-- Beautiful charts for dashboard --><!--
     <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
-  </ItemGroup>
+  </ItemGroup>-->
 
   <ItemGroup>
     <!-- Exclude build artifacts -->
