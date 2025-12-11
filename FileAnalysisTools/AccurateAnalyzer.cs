@@ -39,7 +39,7 @@ namespace FileAnalysisTools
                     directories = Directory.GetDirectories(rootPath, "*", System.IO.SearchOption.AllDirectories).ToList();
                     directories.Insert(0, rootPath); // Include root
                 }
-                catch (Exception ex)
+                catch (Exception )
                 {
                     // If full recursive fails, do it manually
                     directories = GetAllDirectoriesManual(rootPath);
@@ -71,11 +71,11 @@ namespace FileAnalysisTools
                                 var fileInfo = new FileInfo(filePath);
 
                                 // Skip system/hidden files that Windows doesn't count
-                                if ((fileInfo.Attributes & FileAttributes.System) != 0 ||
-                                    (fileInfo.Attributes & FileAttributes.Hidden) != 0)
-                                {
-                                    continue;
-                                }
+                                //if ((fileInfo.Attributes & FileAttributes.System) != 0 ||
+                                //    (fileInfo.Attributes & FileAttributes.Hidden) != 0)
+                                //{
+                                //    continue;
+                                //}
 
                                 result.Files.Add(new FileInfoModel
                                 {
@@ -325,7 +325,7 @@ namespace FileAnalysisTools
     /// </summary>
     public class ScanResult
     {
-        public List<FileInfoModel> Files { get; set; }
+        public List<FileInfoModel> Files { get; set; } = new List<FileInfoModel>();
         public int TotalFiles { get; set; }
         public int TotalDirectories { get; set; }
     }
@@ -335,7 +335,7 @@ namespace FileAnalysisTools
     /// </summary>
     public class DuplicateResult
     {
-        public Dictionary<string, List<FileInfoModel>> DuplicateGroups { get; set; }
+        public Dictionary<string, List<FileInfoModel>> DuplicateGroups { get; set; } = new Dictionary<string, List<FileInfoModel>>();
         public int DuplicateGroupCount { get; set; }
         public int TotalDuplicateFiles { get; set; }
         public long WastedSpace { get; set; }

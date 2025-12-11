@@ -37,6 +37,9 @@
     <!-- Performance -->
     <TieredCompilation>true</TieredCompilation>
     <TieredCompilationQuickJit>true</TieredCompilationQuickJit>
+	  
+	<!-- DPI-->
+	<ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>  
   </PropertyGroup>
 
   <ItemGroup>
@@ -68,6 +71,7 @@
     <TieredCompilation>true</TieredCompilation>
     <TieredCompilationQuickJit>true</TieredCompilationQuickJit>
     <Optimize>true</Optimize>
+    <ApplicationIcon>logo.ico</ApplicationIcon>
   </PropertyGroup>
 
   <!--<ItemGroup>
@@ -84,6 +88,10 @@
     <EmbeddedResource Remove="obj\**" />
     <None Remove="obj\**" />
     <Page Remove="obj\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="logo.ico" />
   </ItemGroup>
 
 </Project>

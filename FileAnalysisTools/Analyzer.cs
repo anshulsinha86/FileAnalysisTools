@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -289,10 +290,14 @@ namespace FileAnalysisTools
     }
 
     /// <summary>
-    /// File information model
+    /// Enhanced file information model with INotifyPropertyChanged for UI binding
     /// </summary>
-    public class FileInfoModel
+    public class FileInfoModel : INotifyPropertyChanged
     {
+        private bool _isSelected;
+        private bool _markedForRemoval;
+
+        // Basic Properties
         public string Name { get; set; }
         public string Extension { get; set; }
         public long Size { get; set; }
@@ -303,13 +308,61 @@ namespace FileAnalysisTools
         public bool IsReadOnly { get; set; }
         public string Attributes { get; set; }
         public string Hash { get; set; }
-        public bool IsDuplicate { get; set; }
-        public bool IsSelected { get; set; }
-        public bool MarkedForRemoval { get; set; }  // NEW: For safe deletion
-        public string DuplicateGroupId { get; set; } // NEW: To group duplicates
 
+        // Duplicate Management Properties
+        public bool IsDuplicate { get; set; }
+        public string DuplicateGroupId { get; set; }
+        public bool IsPrimaryFile { get; set; }  // NEW: Marks the primary/original file
+        public string? PrimaryFilePath { get; set; }  // NEW: Path to primary file (for duplicates)
+
+        // Selection Properties (with PropertyChanged for UI updates)
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    OnPropertyChanged(nameof(IsSelected));
+                }
+            }
+        }
+
+        public bool MarkedForRemoval
+        {
+            get => _markedForRemoval;
+            set
+            {
+                if (_markedForRemoval != value)
+                {
+                    _markedForRemoval = value;
+                    OnPropertyChanged(nameof(MarkedForRemoval));
+                }
+            }
+        }
+
+        // Convenience Properties for UI (read-only, computed)
+        public bool IsEmpty => Size == 0;
+        public bool IsLarge => Size > 100 * 1024 * 1024;
         public string SizeFormatted => Common.FormatBytes(Size);
         public string LastModifiedFormatted => LastModified.ToString("yyyy-MM-dd HH:mm:ss");
+        public string CreatedDateFormatted => CreatedDate.ToString("yyyy-MM-dd HH:mm:ss");
+
+        // Status Display Property
+        public string StatusDisplay
+        {
+            get
+            {
+                var statuses = new List<string>();
+                if (IsPrimaryFile) statuses.Add("★ PRIMARY");
+                else if (IsDuplicate) statuses.Add("🔄 Duplicate");
+                if (IsEmpty) statuses.Add("📄 Empty");
+                if (IsLarge) statuses.Add("💎 Large");
+                if (IsReadOnly) statuses.Add("🔒 Read-Only");
+                return statuses.Count > 0 ? string.Join(" | ", statuses) : "";
+            }
+        }
 
         public FileInfoModel()
         {
@@ -320,6 +373,15 @@ namespace FileAnalysisTools
             Attributes = string.Empty;
             Hash = string.Empty;
             DuplicateGroupId = string.Empty;
+            PrimaryFilePath = null;
+        }
+
+        // INotifyPropertyChanged implementation
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 
